@@ -29,6 +29,11 @@ import sir_model
 importlib.reload(sir_model)
 from sir_model import simular_sir
 
+import logistic_model
+importlib.reload(logistic_model)
+from logistic_model import ajustar_modelo_logistico
+
+
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
     page_title="COVID-19 Intelligence | Brazil & Global Analytics",
@@ -247,12 +252,14 @@ if "Brasil" in modo_escopo:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📈 Ondas Epidemiológicas & Variantes",
         "🗺️ Distribuição Espacial (UFs)",
         "💉 Efeito Causal da Vacinação",
-        "🧮 Simulador Matemático SIR"
+        "🧮 Simulador Matemático SIR",
+        "📐 Projeção Logística (EDO - Santos/UFMG)"
     ])
+
 
     with tab1:
         st.subheader("📊 Dinâmica Temporal das Ondas de Contágio e Descolamento de Curvas")
@@ -382,6 +389,149 @@ if "Brasil" in modo_escopo:
         fig_sir.add_hline(y=capacidade_leitos, line_dash="dash", line_color="#DC2626", annotation_text=f"Capacidade UTI ({capacidade_leitos:,})")
         fig_sir.update_layout(template="plotly_white", height=460, title="Curva Epidêmica Dinâmica — Modelo SIR", xaxis_title="Dias", yaxis_title="Indivíduos")
         st.plotly_chart(fig_sir, use_container_width=True)
+
+    with tab5:
+        st.subheader("📐 Modelo de Crescimento Logístico (EDO) & Ajuste por Mínimos Quadrados")
+        st.markdown("""
+            Esta seção implementa a modelagem analítica com a **Equação Diferencial Logística de Verhulst**, adaptando a metodologia desenvolvida pelo **Prof. Dr. Reginaldo J. Santos (Departamento de Matemática - UFMG)** em sua nota técnica *"Um Modelo para o Surto de Coronavírus no Brasil"*.
+        """)
+
+        # Seletor de período / onda para ajuste
+        col_lg1, col_lg2 = st.columns([2, 1])
+        with col_lg1:
+            recorte_onda = st.selectbox(
+                "Selecione o recorte epidemiológico para calibração:",
+                options=[
+                    "Onda 1 (Ancestral: Mar/2020 a Nov/2020)",
+                    "Onda 2 (Gama/P.1: Dez/2020 a Jul/2021)",
+                    "Onda 4 (Ômicron: Dez/2021 a Mai/2022)",
+                    "Série Histórica Completa (2020 a 2023)"
+                ],
+                index=0
+            )
+        with col_lg2:
+            dias_proj = st.slider("Horizonte de Projeção Futura (semanas):", min_value=4, max_value=24, value=12, step=2)
+
+        # Filtragem da série temporal conforme o recorte
+        if "Onda 1" in recorte_onda:
+            df_sub = df_series[(df_series["data"] >= "2020-03-01") & (df_series["data"] <= "2020-11-30")].copy()
+        elif "Onda 2" in recorte_onda:
+            df_sub = df_series[(df_series["data"] >= "2020-12-01") & (df_series["data"] <= "2021-07-31")].copy()
+        elif "Onda 4" in recorte_onda:
+            df_sub = df_series[(df_series["data"] >= "2021-12-01") & (df_series["data"] <= "2022-05-31")].copy()
+        else:
+            df_sub = df_series.copy()
+
+        df_sub["casos_acumulados_recorte"] = df_sub["casos_semanais"].cumsum()
+
+        # Ajuste numérico do modelo
+        res_logistico = ajustar_modelo_logistico(
+            datas=df_sub["data"],
+            casos_acumulados=df_sub["casos_acumulados_recorte"],
+            dias_projecao=dias_proj
+        )
+
+        # Métricas Chave do Modelo
+        lm1, lm2, lm3, lm4 = st.columns(4)
+        lm1.metric(
+            "Teto Projetado ($y_M$)",
+            f"{res_logistico['yM_capacidade_maxima']:,.0f}".replace(',', '.'),
+            delta="Capacidade Máxima Teórica"
+        )
+        lm2.metric(
+            "Acurácia ($R^2$ do Ajuste)",
+            f"{res_logistico['r2_ajuste'] * 100:.2f}%",
+            delta="Mínimos Quadrados",
+            delta_color="normal"
+        )
+        lm3.metric(
+            "Taxa de Propagação ($r$)",
+            f"{res_logistico['taxa_r']:.4f}",
+            delta=f"K = {res_logistico['constante_K_edo']:.2e}"
+        )
+        dia_inflexao = res_logistico['t_inflexao_dia']
+        data_inflexao_str = res_logistico['datas'][min(dia_inflexao, len(res_logistico['datas'])-1)].strftime('%d/%m/%Y')
+        lm4.metric(
+            "Ponto de Inflexão (Pico)",
+            f"Semana {dia_inflexao}",
+            delta=data_inflexao_str
+        )
+
+        # Gráfico Comparativo: Real vs Ajuste + Projeção
+        fig_log = go.Figure()
+        
+        # Pontos Reais Observados
+        fig_log.add_trace(go.Scatter(
+            x=df_sub["data"],
+            y=df_sub["casos_acumulados_recorte"],
+            mode="markers",
+            name="Casos Observados (Reais)",
+            marker=dict(color="#EF4444", size=7, symbol="circle"),
+            hovertemplate="<b>Real</b><br>Data: %{x|%d/%m/%Y}<br>Casos Acumulados: %{y:,.0f}<extra></extra>"
+        ))
+
+        # Curva Logística (Ajustada no Histórico)
+        n_hist = res_logistico["n_historico"]
+        datas_hist = res_logistico["datas"][:n_hist]
+        curva_hist = res_logistico["curva_ajustada_e_projetada"][:n_hist]
+        fig_log.add_trace(go.Scatter(
+            x=datas_hist,
+            y=curva_hist,
+            mode="lines",
+            name="Ajuste Logístico EDO (Treino)",
+            line=dict(color="#2563EB", width=2.8),
+            hovertemplate="<b>Ajuste EDO</b><br>Data: %{x|%d/%m/%Y}<br>Casos Ajustados: %{y:,.0f}<extra></extra>"
+        ))
+
+        # Curva de Projeção Futura
+        datas_fut = res_logistico["datas"][n_hist-1:]
+        curva_fut = res_logistico["curva_ajustada_e_projetada"][n_hist-1:]
+        fig_log.add_trace(go.Scatter(
+            x=datas_fut,
+            y=curva_fut,
+            mode="lines",
+            name=f"Projeção Futura (+{dias_proj} semanas)",
+            line=dict(color="#8B5CF6", width=2.5, dash="dash"),
+            hovertemplate="<b>Projeção</b><br>Data: %{x|%d/%m/%Y}<br>Projeção Teórica: %{y:,.0f}<extra></extra>"
+        ))
+
+        # Linha Assintótica do Teto yM
+        fig_log.add_hline(
+            y=res_logistico["yM_capacidade_maxima"],
+            line_dash="dot",
+            line_color="#059669",
+            annotation_text=f"Platô Teórico y_M ({res_logistico['yM_capacidade_maxima']:,.0f})",
+            annotation_position="bottom right"
+        )
+
+        fig_log.update_layout(
+            template="plotly_white",
+            height=480,
+            title=f"Curva de Ajuste Logístico & Projeção Assintótica — {recorte_onda}",
+            xaxis_title="Linha do Tempo",
+            yaxis_title="Casos Acumulados",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig_log, use_container_width=True)
+
+        # Card de Fundamentação e Créditos Acadêmicos (ABNT)
+        st.markdown("""
+            <div style="background: #F1F5F9; border-left: 4px solid #3B82F6; padding: 16px 20px; border-radius: 6px; margin-top: 20px;">
+                <h4 style="margin-top: 0; color: #1E293B; font-size: 1.05rem;">
+                    🔬 Fundamentação Matemática & Referência Acadêmica
+                </h4>
+                <p style="font-size: 0.92rem; color: #475569; margin-bottom: 8px;">
+                    O crescimento populacional e epidemiológico com limitação de recursos segue a <b>Equação Diferencial de Verhulst</b>:
+                    <br>
+                    <code>dy/dt = K · y · (y_M - y)</code>, com solução analítica <code>y(t) = y_M / [1 + ((y_M - y_0)/y_0) · e^(-y_M · K · t)]</code>.
+                </p>
+                <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 0;">
+                    <b>Referência em Normas ABNT:</b><br>
+                    SANTOS, Reginaldo J. <i>Um Modelo para o Surto de Coronavírus no Brasil</i>. Departamento de Matemática, Instituto de Ciências Exatas, Universidade Federal de Minas Gerais (UFMG), Belo Horizonte, 2020. Disponível no repositório institucional da UFMG.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
 
 # ==============================================================================
 # VISÃO 2: GLOBAL (MUNDO / PAÍSES)

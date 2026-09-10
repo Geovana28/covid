@@ -40,6 +40,27 @@ Onde:
 
 ---
 
+### 2. Modelo de Crescimento Logístico & Ajuste por Mínimos Quadrados
+A plataforma incorpora a solução analítica da **Equação Diferencial Logística de Verhulst** para estimar o teto assintótico de casos ($y_M$) e prever curvas de estabilização de cada onda:
+
+$$\frac{dy}{dt} = K \cdot y \cdot (y_M - y)$$
+
+Cuja solução analítica exata é dada por:
+
+$$y(t) = \frac{y_M}{1 + \left(\frac{y_M - y_0}{y_0}\right) e^{-y_M \cdot K \cdot (t - t_0)}}$$
+
+A calibração dos parâmetros $y_M$ e $K$ é realizada através do método de **Mínimos Quadrados** não-lineares, permitindo projetar a estabilização de platô e o ponto de inflexão máxima ($\frac{y_M}{2}$) de novos casos.
+
+---
+
+## 📚 Referências Bibliográficas & Metodologia
+
+- **SANTOS, Reginaldo J.** *Um Modelo para o Surto de Coronavírus no Brasil*. Departamento de Matemática, Instituto de Ciências Exatas, Universidade Federal de Minas Gerais (UFMG), Belo Horizonte, 2020.
+- **SANTOS, Reginaldo J.** *Crescimento Populacional: Um Modelo para o Crescimento da População Brasileira*. Departamento de Matemática, Instituto de Ciências Exatas, Universidade Federal de Minas Gerais (UFMG), Belo Horizonte.
+- **VERHULST, Pierre-François.** *Notice sur la loi que la population poursuit dans son accroissement*. Correspondance Mathématique et Physique, 1838.
+- **KERMACK, W. O.; MCKENDRICK, A. G.** *A Contribution to the Mathematical Theory of Epidemics*. Proceedings of the Royal Society of London, 1927.
+
+
 ## 🚀 Como Executar Localmente
 
 ### 1. Clonar e Instalar Dependências
