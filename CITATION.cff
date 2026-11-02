@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this model in your research, please cite it as below."
+authors:
+  - family-names: Silva
+    given-names: Geovana
+    orcid: "https://orcid.org/0009-0000-0000-0000"
+title: "COVID-19 Intelligence & Epidemiological Analytics Platform: Dynamical Systems & Verhulst Logistics"
+version: 1.0.0
+date-released: 2026-11-01
+url: "https://github.com/Geovana28/covid"
+repository-code: "https://github.com/Geovana28/covid"
+keywords:
+  - "epidemiology"
+  - "sir model"
+  - "differential equations"
+  - "runge kutta"
+  - "verhulst logistic growth"
+license: MIT
+

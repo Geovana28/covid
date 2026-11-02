@@ -1,22 +1,23 @@
 # 🦠 COVID-19 Intelligence & Epidemiological Analytics Platform
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Plotly](https://img.shields.io/badge/Plotly-7.0%2B-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/)
-[![Scipy](https://img.shields.io/badge/SciPy-1.10%2B-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)
-[![Status](https://img.shields.io/badge/Status-Produção%20%2F%20Ativo-success)]()
+[![Live Interactive Simulator](https://img.shields.io/badge/Live_Showcase-GitHub_Pages-14b8a6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://geovana28.github.io/covid/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Model: SIR ODE](https://img.shields.io/badge/Dynamical_System-Runge--Kutta_4-blue?style=for-the-badge)](https://github.com/Geovana28/covid)
+[![Status](https://img.shields.io/badge/Status-Produção%20%2F%20Ativo-success?style=for-the-badge)]()
 
-> Plataforma integrada de vigilância epidemiológica, exploração de séries temporais das variantes da COVID-19 no Brasil, análise causal da cobertura vacinal e modelagem matemática dinâmica com equações diferenciais (Modelo SIR).
+> 💡 **Experimente o Simulador Interativo:** Acesse o [**Interactive Showcase (GitHub Pages)**](https://geovana28.github.io/covid/) para simular a resolução numérica RK4 das equações SIR, impacto de intervenções não-farmacológicas (NPI) e saturação de UTI direto pelo navegador.
+
+> Plataforma integrada de vigilância epidemiológica, exploração de séries temporais das ondas da COVID-19 no Brasil, análise temporal da cobertura vacinal e modelagem matemática dinâmica com equações diferenciais (Modelo SIR e Crescimento Logístico de Verhulst).
 
 ---
 
 ## 🎯 Objetivos do Projeto
 
 - **Vigilância Dual (Brasil & Global):** Alternância instantânea no menu lateral entre o panorama detalhado das 27 UFs do Brasil e o comparativo internacional entre grandes nações do mundo (EUA, Índia, França, Alemanha, Japão, Reino Unido, África do Sul, etc.).
-- **Monitoramento Temporal das Ondas:** Acompanhamento dinâmico das 4 principais fases da pandemia no Brasil (*Ancestral, Gama, Delta e Ômicron*) com médias móveis de 7 dias e identificação de descolamento de curvas.
+- **Monitoramento Temporal das Ondas:** Acompanhamento dinâmico das 4 principais fases da pandemia no Brasil (*Ancestral, Gama, Delta e Ômicron*) com médias móveis de 7 dias e identificação de descolamento entre curvas de casos e óbitos.
 - **Comparativo Multi-País:** Gráficos interativos lado a lado permitindo selecionar e contrastar a velocidade de contágio e estratégias nacionais de contenção.
 - **Vigilância Espacial (UFs & Mapa-Múndi):** Mapeamento georreferenciado interativo nacional e projeções geográficas globais com incidência, mortalidade acumulada e taxas de letalidade.
-- **Análise Causal da Imunização & Disparidade Global:** Correlação estatística robusta entre a expansão da cobertura vacinal e a redução de óbitos, além do mapeamento da desigualdade de distribuição de imunizantes entre continentes.
+- **Análise Temporal da Imunização & Disparidade Global:** Avaliação da correlação temporal entre a expansão da cobertura vacinal e a redução da letalidade observada, além do mapeamento da desigualdade de distribuição de imunizantes entre continentes.
 - **Simulador Epidemiológico SIR:** Resolução computacional de Equações Diferenciais Ordinárias (ODE) permitindo aos gestores e pesquisadores simular o impacto de medidas não-farmacológicas (máscaras, distanciamento) e vacinação na prevenção do colapso do sistema de saúde (leitos UTI).
 
 ---
@@ -61,24 +62,36 @@ A calibração dos parâmetros $y_M$ e $K$ é realizada através do método de *
 - **KERMACK, W. O.; MCKENDRICK, A. G.** *A Contribution to the Mathematical Theory of Epidemics*. Proceedings of the Royal Society of London, 1927.
 
 
+## ⚠️ Limitações Metodológicas e Hipóteses do Modelo
+
+1. **Mistura Homogênea (*Homogeneous Mixing*)**: O modelo SIR assume população fechada ($S(t) + I(t) + R(t) = N$) e contato homogêneo entre indivíduos, não capturando heterogeneidades etárias ou redes de contato espacialmente estruturadas.
+2. **Parâmetros Constantes por Onda**: As taxas de transmissão ($\beta$) e recuperação ($\gamma$) são tratadas como constantes dentro da janela simulada, e o modelo básico SIR não incorpora perda de imunidade (*waning immunity*) ou reinfecção por escape antigênico.
+3. **Correlação Temporal vs. Inferência Causal**: O descolamento observado entre as curvas de casos e óbitos concomitantemente ao avanço vacinal constitui evidência ecológica e temporal consistente com a literatura clínica, mas não substitui desenhos formais de inferência causal ao nível individual (como ensaios clínicos randomizados ou desenhos de coorte com controle de confundidores).
+
+---
+
 ## 🚀 Como Executar Localmente
 
 ### 1. Clonar e Instalar Dependências
 ```bash
-cd c:\Users\SEJUSP.DESKTOP-VOL42AH\Desktop\Projetos-\covid
+git clone https://github.com/Geovana28/covid.git
+cd covid
 pip install -r requirements.txt
 ```
 
-### 2. Iniciar o Dashboard
+### 2. Iniciar o Dashboard Streamlit ou Versão Web
 ```bash
 streamlit run app.py
+# Ou abra index.html diretamente no navegador para o simulador standalone
 ```
 
-O aplicativo abrirá automaticamente no seu navegador padrão em: `http://localhost:8501`.
+### 3. Executar Testes Automatizados
+```bash
+pytest tests/ -v
+```
 
 ---
 
-## 👩‍💻 Autoria
-Desenvolvido por **Geovana**  
-*Full Stack Developer & Data Scientist*  
-[GitHub Profile](https://github.com/Geovana28)
+## 📄 Licença e Autoria
+Distribuído sob a licença MIT. Veja `LICENSE` para mais detalhes.  
+Desenvolvido por **Geovana** — [GitHub Profile](https://github.com/Geovana28)
