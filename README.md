@@ -1,11 +1,12 @@
 # 🦠 COVID-19 Intelligence & Epidemiological Analytics Platform
 
-[![Live Interactive Simulator](https://img.shields.io/badge/Live_Showcase-GitHub_Pages-14b8a6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://geovana28.github.io/covid/)
+[![Live App - Streamlit Cloud](https://img.shields.io/badge/Live_App-Streamlit_Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://covidd.streamlit.app/)
+[![Live Interactive Simulator](https://img.shields.io/badge/Web_Overview-GitHub_Pages-14b8a6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://geovana28.github.io/covid/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Model: SIR ODE](https://img.shields.io/badge/Dynamical_System-Runge--Kutta_4-blue?style=for-the-badge)](https://github.com/Geovana28/covid)
 [![Status](https://img.shields.io/badge/Status-Produção%20%2F%20Ativo-success?style=for-the-badge)]()
 
-> 💡 **Experimente o Simulador Interativo:** Acesse o [**Interactive Showcase (GitHub Pages)**](https://geovana28.github.io/covid/) para simular a resolução numérica RK4 das equações SIR, impacto de intervenções não-farmacológicas (NPI) e saturação de UTI direto pelo navegador.
+> 🚀 **Experimente o App Completo em Produção (Python + Streamlit):** Acesse o [**COVID-19 Intelligence no Streamlit Cloud**](https://covidd.streamlit.app/) (ou a [versão web resumida](https://geovana28.github.io/covid/)) para explorar vigilância Brasil/Global, regressão vacinal OLS e modelagem SIR/Logística em tempo real.
 
 > Plataforma integrada de vigilância epidemiológica, exploração de séries temporais das ondas da COVID-19 no Brasil, análise temporal da cobertura vacinal e modelagem matemática dinâmica com equações diferenciais (Modelo SIR e Crescimento Logístico de Verhulst).
 
