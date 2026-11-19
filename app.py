@@ -461,7 +461,13 @@ if "Brasil" in modo_escopo:
                 ["Mortalidade por 100 mil hab", "Taxa de Letalidade (%)", "Total de Óbitos Acumulados"],
             )
         with col_m2:
-            map_style = st.selectbox("Estilo do mapa:", ["carto-darkmatter", "carto-positron", "open-street-map"])
+            map_styles = {
+                "Dark (OpenFreeMap)": "https://tiles.openfreemap.org/styles/dark",
+                "Light (OpenFreeMap)": "https://tiles.openfreemap.org/styles/positron",
+                "OpenStreetMap": "open-street-map",
+            }
+            map_style_label = st.selectbox("Estilo do mapa:", list(map_styles.keys()))
+            map_style = map_styles[map_style_label]
 
         m_col = "mortalidade_100k" if "Mortalidade" in indicador_mapa else ("letalidade_pct" if "Letalidade" in indicador_mapa else "obitos_acumulados")
         scatter_fn = getattr(px, "scatter_map", None) or getattr(px, "scatter_mapbox")
@@ -485,7 +491,7 @@ if "Brasil" in modo_escopo:
         if hasattr(px, "scatter_map"):
             map_kwargs["map_style"] = map_style
         else:
-            map_kwargs["mapbox_style"] = map_style
+            map_kwargs["mapbox_style"] = "open-street-map"
 
         fig_uf_map = scatter_fn(df_uf_filtered, **map_kwargs)
         fig_uf_map.update_traces(
